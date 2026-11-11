@@ -42,7 +42,12 @@ export async function handleApi({ method, url, body }, client) {
     }
     try {
       const task = await client.addTask(fields);
-      return { status: 200, body: { task, link: taskLink(client, task.id) } };
+      let verified = false;
+      try {
+        const stored = await client.getTask(Number(task.id));
+        verified = String(stored?.id) === String(task.id) && stored.title === fields.TITLE;
+      } catch { /* The create response still contains the task ID. */ }
+      return { status: 200, body: { task, link: taskLink(client, task.id), verified } };
     } catch (error) { return { status: 502, body: { error: error.message } }; }
   }
   return { status: 404, body: { error: 'Неизвестный адрес' } };
