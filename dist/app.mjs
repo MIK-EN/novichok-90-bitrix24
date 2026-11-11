@@ -83,13 +83,19 @@ function updateCheckForm() {
 async function checkConnection() {
   try {
     const response=await fetch('/api/status',{cache:'no-store'});
-    if (!response.ok) return;
+    if (!response.ok) throw new Error('API недоступен');
     const data=await response.json();
+    if (typeof data.connected !== 'boolean') throw new Error('API недоступен');
     live=Boolean(data.connected); portal=data.portal;
     if (live) { $('#connection').classList.add('live'); $('#connection span:last-child').textContent='Битрикс24 подключён'; $('#reset').hidden=true; $('#setup').hidden=true; }
-    else if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') $('#setup').hidden=false;
+    else $('#setup').hidden=false;
     render();
-  } catch { /* static demo */ }
+  } catch {
+    $('#setup').hidden=false;
+    $('#webhook-url').disabled=true;
+    $('#setup button').disabled=true;
+    $('#setup-error').textContent='Для подключения откройте сайт через локальный сервер: npm start → http://127.0.0.1:4173';
+  }
 }
 
 $('#people').addEventListener('click',event=>{const card=event.target.closest('[data-person]');if(!card)return;selectedId=card.dataset.person;selectedDay=getInitialCheckpointDay(people.find(p=>p.id===selectedId),today);renderDetail();$('#detail-dialog').showModal();});
