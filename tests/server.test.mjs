@@ -31,6 +31,44 @@ test('task links use the webhook owner ID instead of assuming employee 1', async
   assert.equal(response.body.link, 'https://example.bitrix24.ru/company/personal/user/7/tasks/task/view/42/');
 });
 
+test('created task is confirmed by a fresh Bitrix read', async () => {
+  const calls = [];
+  const confirmingClient = {
+    base: 'https://example.bitrix24.ru/rest/1/secret',
+    async addTask(fields) {
+      calls.push('add');
+      return { id: '73', title: fields.TITLE };
+    },
+    async getTask(id) {
+      calls.push(`get:${id}`);
+      return { id: '73', title: 'Помочь новичку' };
+    }
+  };
+  const response = await handleApi({
+    method: 'POST', url: '/api/task/add',
+    body: { fields: { TITLE: 'Помочь новичку', RESPONSIBLE_ID: 1 } }
+  }, confirmingClient);
+  assert.equal(response.status, 200);
+  assert.equal(response.body.task.id, '73');
+  assert.equal(response.body.verified, true);
+  assert.deepEqual(calls, ['add', 'get:73']);
+});
+
+test('created task ID remains available when follow-up verification fails', async () => {
+  const unconfirmedClient = {
+    base: 'https://example.bitrix24.ru/rest/1/secret',
+    async addTask() { return { id: '73', title: 'Помочь новичку' }; },
+    async getTask() { throw new Error('Bitrix temporarily unavailable'); }
+  };
+  const response = await handleApi({
+    method: 'POST', url: '/api/task/add',
+    body: { fields: { TITLE: 'Помочь новичку', RESPONSIBLE_ID: 1 } }
+  }, unconfirmedClient);
+  assert.equal(response.status, 200);
+  assert.equal(response.body.task.id, '73');
+  assert.equal(response.body.verified, false);
+});
+
 test('local setup accepts a Bitrix webhook and rejects external URLs', () => {
   assert.equal(validateWebhookUrl('https://team.bitrix24.ru/rest/7/secret'), 'https://team.bitrix24.ru/rest/7/secret');
   assert.throws(() => validateWebhookUrl('http://team.bitrix24.ru/rest/7/secret'), /HTTPS/);
