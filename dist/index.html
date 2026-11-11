@@ -25,31 +25,28 @@
     <main id="dashboard" class="main">
       <header class="topbar"><span>HR / Адаптация</span><div class="top-actions"><span class="today" id="today"></span><button id="reset" class="text-button" type="button">Сбросить демо</button></div></header>
       <form id="setup" class="setup" hidden><div><strong>Подключить тестовый Битрикс24</strong><p>Вставьте URL входящего вебхука с правом «Задачи». Адрес останется только в памяти локального сервера.</p></div><label class="sr-only" for="webhook-url">URL вебхука</label><input id="webhook-url" type="password" autocomplete="off" placeholder="https://ваш-портал.bitrix24.ru/rest/1/код/"><button class="primary-button" type="submit">Подключить</button><span id="setup-error" role="alert"></span></form>
-      <section class="hero">
-        <div><div class="eyebrow"><span class="eyebrow-dot"></span> ФОКУС НА ПЕРВЫХ 90 ДНЯХ</div><h1>Не терять новичка<br><em>между задачами.</em></h1><p>Три короткие проверки помогают заметить препятствие вовремя и назначить помощь ответственному.</p></div>
-        <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="hero-center">90<span>дней</span></div><span class="orbit-tag tag-one">7</span><span class="orbit-tag tag-two">30</span><span class="orbit-tag tag-three">60</span></div>
-      </section>
-
       <section class="metrics" aria-label="Сводка">
         <div class="metric"><span>Всего в адаптации</span><strong id="metric-total">0</strong><small>сотрудников</small></div>
         <div class="metric metric-amber"><span>Ждут проверки</span><strong id="metric-due">0</strong><small>просрочено или сегодня</small></div>
         <div class="metric metric-red"><span>Нужна помощь</span><strong id="metric-help">0</strong><small>открытых вопросов</small></div>
       </section>
 
-      <section class="workspace">
-        <div class="list-panel">
-          <div class="section-title"><div><div class="eyebrow dark">РАБОЧИЙ СПИСОК</div><h2>Новички</h2></div><button id="add-person" class="primary-button" type="button"><span>＋</span> Добавить</button></div>
-          <div class="list-controls"><div class="segmented" role="group" aria-label="Фильтр"><button data-filter="all" class="selected" type="button">Все</button><button data-filter="attention" type="button">Требуют внимания</button></div><input id="search" type="search" placeholder="Поиск по имени или отделу" aria-label="Поиск новичка"></div>
-          <div id="people" class="people-list"></div>
-        </div>
-        <div class="detail-panel" id="detail"></div>
+      <section class="board-section" aria-labelledby="board-title">
+        <div class="board-toolbar"><div><div class="eyebrow dark">РАБОЧАЯ ДОСКА</div><h2 id="board-title">Новички по статусам</h2><p>Откройте карточку, чтобы провести проверку на 7, 30 или 60 день.</p></div><div class="board-actions"><input id="search" type="search" placeholder="Поиск по имени или отделу" aria-label="Поиск новичка"><button id="add-person" class="primary-button" type="button"><span>＋</span> Добавить</button></div></div>
+        <div id="people" class="kanban-board"></div>
       </section>
 
-      <section id="how" class="how-section"><div class="eyebrow dark">ОДИН ПОНЯТНЫЙ СЦЕНАРИЙ</div><h2>Как работает</h2><div class="how-grid"><div><b>01</b><h3>Связать с приёмом</h3><p>HR добавляет новичка и при необходимости указывает ID существующей задачи приёма в Битрикс24.</p></div><div><b>02</b><h3>Проверить контакт</h3><p>На 7, 30 и 60 день руководитель фиксирует короткий итог: всё хорошо или нужна помощь.</p></div><div><b>03</b><h3>Назначить помощь</h3><p>Если есть препятствие, HR создаёт задачу с ответственным и сроком. В подключённом режиме она появляется в Битрикс24.</p></div></div></section>
+      <section class="hero">
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span> ФОКУС НА ПЕРВЫХ 90 ДНЯХ</div><h1>Не терять новичка<br><em>между задачами.</em></h1><p>Три короткие проверки помогают заметить препятствие вовремя и назначить помощь ответственному.</p></div>
+        <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="hero-center">90<span>дней</span></div><span class="orbit-tag tag-one">7</span><span class="orbit-tag tag-two">30</span><span class="orbit-tag tag-three">60</span></div>
+      </section>
+
+      <section id="how" class="how-section"><div class="eyebrow dark">ОДИН ПОНЯТНЫЙ СЦЕНАРИЙ</div><h2>Как работает</h2><div class="how-grid"><div><b>01</b><h3>Связать с приёмом</h3><p>HR добавляет новичка и при необходимости указывает ID существующей задачи приёма в Битрикс24.</p></div><div><b>02</b><h3>Проверить контакт</h3><p>На 7, 30 и 60 день руководитель фиксирует короткий итог: всё хорошо или нужна помощь.</p></div><div><b>03</b><h3>Назначить помощь</h3><p>Если есть препятствие, комментарий и срок превращаются в задачу для ответственного. В подключённом режиме она появляется в Битрикс24.</p></div></div></section>
       <footer>Прототип для тестового задания · Данные и имена вымышлены</footer>
     </main>
   </div>
 
+  <dialog id="detail-dialog" class="detail-dialog" aria-label="Карточка новичка"><div class="detail-dialog-inner"><button id="close-detail" type="button" class="close-button detail-close" aria-label="Закрыть карточку">×</button><div class="detail-panel" id="detail"></div></div></dialog>
   <dialog id="person-dialog" class="modal"><form id="person-form" method="dialog"><div class="modal-head"><div><div class="eyebrow dark">НОВАЯ КАРТОЧКА</div><h2>Добавить новичка</h2></div><button type="button" class="close-button" data-close="person-dialog" aria-label="Закрыть">×</button></div><div class="form-grid"><label>Имя и фамилия<input name="name" required placeholder="Например, Ирина Белова"></label><label>Должность<input name="role" required placeholder="Например, комплектовщик"></label><label>Подразделение<select name="department"><option>Склад</option><option>Магазин</option><option>Отдел продаж</option><option>Офис</option></select></label><label>Дата выхода<input name="startDate" type="date" required></label><label>Руководитель<input name="manager" required placeholder="Имя руководителя"></label><label>ID руководителя в Битрикс24<input name="managerBitrixId" type="number" min="1" value="1" required></label><label class="full">ID задачи приёма в Битрикс24 <small>необязательно для демо</small><input name="bitrixTaskId" type="number" min="1" placeholder="Например, 42"></label></div><p id="person-error" class="form-error" role="alert"></p><div class="modal-actions"><button type="button" class="secondary-button" data-close="person-dialog">Отмена</button><button type="submit" class="primary-button">Создать карточку</button></div></form></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script type="module" src="/app.mjs"></script>
